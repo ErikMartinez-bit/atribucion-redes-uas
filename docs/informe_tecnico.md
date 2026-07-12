@@ -50,39 +50,31 @@ La construcción de $G^T$ requiere $\mathcal{O}(|E|)$ y el recorrido BFS explora
 
 A partir de la formulación anterior, el procedimiento de atribución se expresa mediante el siguiente pseudocódigo, base directa de la implementación en `src/attribution_engine.py`:
 
-\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+```text
+Algoritmo IDENTIFICAR-EMISOR-PRIMARIO(G, d_target)
+Entrada: Grafo dirigido G = (V, E), nodo dron interceptado d_target
+Salida: (emisor_optimo, distancia, candidatos)
 
-\begin{algorithm}[H]
-\caption{\textsc{Identificar-Emisor-Primario}($G, d\_target$)}
-\SetKwInOut{Input}{Entrada}\SetKwInOut{Output}{Salida}
+1. Si d_target no pertenece a V:
+   retornar error de nodo inexistente
 
-\Input{Grafo dirigido $G = (V, E)$, nodo dron interceptado $d\_target$}
-\Output{$(\mathit{emisor\_optimo}, \mathit{distancia}, \mathit{candidatos})$}
+2. G^T <- TRANSPONER(G) // O(|V| + |E|)
 
-\BlankLine
+3. dist <- BFS(G^T, origen = d_target) // distancias desde d_target en G^T;
+   // por la Propiedad de Distancia
+   // Equivalente (Sección 2.3), estas
+   // corresponden a d_G(v, d_target)
 
-\If{$d\_target \notin V$}{
-    \Return error de nodo inexistente\;
-}
+4. candidatos <- conjunto vacío
 
-$G^T \leftarrow \textsc{Transponer}(G)$ \tcp*{$O(|V| + |E|)$}
+5. para cada nodo v alcanzado en dist:
+   si grado_entrada_G(v) = 0 Y v != d_target:
+      candidatos <- candidatos U {v}
 
-$dist \leftarrow \textsc{BFS}(G^T, \mathit{origen} = d\_target)$ \tcp*{distancias desde $d\_target$ en $G^T$}
-\tcp*[h]{Por la Propiedad de Distancia Equivalente (Sección 2.3), estas corresponden a $d_G(v, d\_target)$}\;
+6. si candidatos = conjunto vacío:
+   retornar (None, infinito, conjunto vacío)
 
-$\mathit{candidatos} \leftarrow \emptyset$\;
+7. emisor_optimo <- argmin_{v en candidatos} dist[v]
 
-\ForEach{nodo $v$ alcanzado en $dist$}{
-    \If{$\mathit{grado\_entrada}\_G(v) = 0 \text{ Y } v \neq d\_target$}{
-        $\mathit{candidatos} \leftarrow \mathit{candidatos} \cup \{v\}$\;
-    }
-}
-
-\If{$\mathit{candidatos} = \emptyset$}{
-    \Return $(\text{None}, \infty, \emptyset)$\;
-}
-
-$\mathit{emisor\_optimo} \leftarrow \arg\min_{v \in \mathit{candidatos}} dist[v]$\;
-
-\Return $(\mathit{emisor\_optimo}, dist[\mathit{emisor\_optimo}], \mathit{candidatos})$\;
-\end{algorithm}
+8. retornar (emisor_optimo, dist[emisor_optimo], candidatos)
+```

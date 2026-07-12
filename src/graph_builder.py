@@ -5,7 +5,7 @@ def build_star_network():
     G = nx.DiGraph()
     G.add_edge("Operador_C1", "Dron_D1")
     return G
-
+    
 def build_relay_chain_network():
     """Escenario B: Cadena de repetidores (Operador -> Relay 1 -> Relay 2 -> Dron)."""
     G = nx.DiGraph()

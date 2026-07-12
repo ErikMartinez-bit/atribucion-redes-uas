@@ -1,4 +1,5 @@
-import pytest
+Aquí está el archivo completo de tests/test_attribution.py con el nuevo test ya integrado (lo agregué al final, después del de red desconectada, siguiendo el mismo orden en que aparecen las funciones en graph_builder.py):
+pythonimport pytest
 from src.graph_builder import (
     build_star_network,
     build_relay_chain_network,
@@ -22,6 +23,15 @@ def test_attribution_relay_chain():
     assert dist == 3
     assert "Relay_R1" not in candidates
     assert "Relay_R2" not in candidates
+
+def test_attribution_complex_mesh_tiebreak():
+    """Valida el desempate por distancia mínima cuando existen múltiples candidatos."""
+    G = build_complex_mesh_network()
+    emitter, dist, candidates = identify_primary_emitter(G, "Dron_D1")
+    assert emitter == "Operador_Real_C1"
+    assert dist == 3
+    assert "Operador_Falso_C2" in candidates
+    assert len(candidates) == 2
 
 def test_attribution_disconnected_network():
     """Valida el caso borde C_candidatos = vacio en red desconectada."""

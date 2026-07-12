@@ -46,29 +46,23 @@ Para rastrear la trayectoria desde un dron objetivo interceptado $d_{target} \in
 
 $$E^T = \{(v, u) \mid (u, v) \in E\}$$
 
-La inversión del sentido de los arcos $(u, v) \to (v, u)$ permite realizar una búsqueda de alcanzabilidad inversa (*backtracking*) desde $d_{target}$ en el subgrafo de ancestros $G_{sub}^T$.
-
-**Nota sobre equivalencia de distancias:** dado que $G^T$ invierte exactamente todas las aristas de $G$, toda trayectoria dirigida de longitud $k$ desde $d_{target}$ hasta un nodo $v$ en $G^T$ corresponde exactamente a una trayectoria de longitud $k$ desde $v$ hasta $d_{target}$ en $G$. Por lo tanto, ejecutar BFS desde $d_{target}$ sobre $G^T$ y medir la distancia hallada hasta $v$ es equivalente a calcular $d(v, d_{target})$ en el grafo original.
+La inversión del sentido de los arcos $(u, v) \to (v, u)$ permite realizar una búsqueda de alcanzabilidad inversa (*backtracking*) desde $d_{target}$ en el subgrafo de ancestros $G_{sub}^T$. Dado que esta inversión es exacta sobre la totalidad de las aristas, toda trayectoria de longitud $k$ desde $d_{target}$ hasta un nodo $v$ en $G^T$ corresponde a una trayectoria de la misma longitud desde $v$ hasta $d_{target}$ en $G$; por lo tanto, la distancia hallada al recorrer $G^T$ desde $d_{target}$ equivale directamente a $d(v, d_{target})$ en el grafo original, sin necesidad de recorrer $G$ en su sentido natural.
 
 ---
 
 ## 4. Manejo de Ambigüedades y Casos Borde
 
-### Selección en Múltiples Candidatos
+Al ejecutar la búsqueda inversa sobre $G_{sub}^T$ pueden presentarse dos situaciones que se apartan del caso ideal de una única fuente identificable.
 
-Si al realizar la búsqueda inversa se identifica un conjunto de candidatos con grado de entrada nulo $C_{candidatos} = \{v_1, v_2, \dots, v_k\}$ con $d^-(v_i) = 0$, el emisor más probable se determina seleccionando aquel con el camino más corto hacia $d_{target}$:
+Puede ocurrir que se identifique un conjunto de candidatos con grado de entrada nulo $C_{candidatos} = \{v_1, v_2, \dots, v_k\}$ con $d^-(v_i) = 0$, en cuyo caso el emisor más probable se determina seleccionando aquel con el camino más corto hacia $d_{target}$:
 
 $$C_{optimo} = \arg\min_{v \in C_{candidatos}} d(v, d_{target})$$
 
-Donde $d(u, v)$ representa la longitud del camino mínimo desde $u$ hasta $v$ en el dígrafo original $G$.
+donde $d(u, v)$ representa la longitud del camino mínimo desde $u$ hasta $v$ en el dígrafo original $G$. Alternativamente, si la red se encuentra desconectada, los datos de origen son incompletos, o el dron objetivo quedó aislado sin una ruta de retorno hacia ningún nodo raíz, el conjunto de candidatos puede resultar vacío:
 
-### Caso de No Alcanzabilidad
+$$C_{candidatos} = \emptyset \implies \text{atribución no determinable}$$
 
-Es posible que, debido a una red desconectada, datos incompletos o un dron aislado sin ruta de retorno, la búsqueda inversa en $G_{sub}^T$ no encuentre ningún nodo con grado de entrada nulo. Formalmente:
-
-$$\text{Si } C_{candidatos} = \emptyset \implies \text{atribución no determinable (red desconectada o datos incompletos)}$$
-
-En este caso el algoritmo debe reportar explícitamente la imposibilidad de atribución, en lugar de asumir un origen por defecto.
+En este escenario el algoritmo debe reportar explícitamente la imposibilidad de atribución en lugar de asumir un origen por defecto, preservando así la validez del modelo incluso ante datos de red imperfectos.
 
 ---
 

@@ -1,5 +1,4 @@
-Aquí está el archivo completo de tests/test_attribution.py con el nuevo test ya integrado (lo agregué al final, después del de red desconectada, siguiendo el mismo orden en que aparecen las funciones en graph_builder.py):
-pythonimport pytest
+import pytest
 from src.graph_builder import (
     build_star_network,
     build_relay_chain_network,

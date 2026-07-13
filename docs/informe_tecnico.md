@@ -114,7 +114,11 @@ El código cuenta con una suite de pruebas automatizadas (`tests/test_attributio
 * **Resultado:** Salida `None`, distancia `inf` y $C_{candidatos} = \emptyset$, validando el manejo de datos incompletos sin colapsar el software.
 
 ---
-
+### Validación Empírica de la Complejidad Computacional
+* **Configuración:** Se generaron redes por capas de tamaño creciente (5 a 160 capas, 15 nodos por capa), midiendo el tiempo de ejecución de `identify_primary_emitter` sobre cada una.
+* **Resultado:** El tiempo de ejecución exhibe un crecimiento aproximadamente lineal respecto a $|V| + |E|$, sin evidencia de comportamiento cuadrático o superior, confirmando empíricamente la complejidad teórica $\mathcal{O}(|V| + |E|)$ derivada en la Sección 2.5.
+![Validación de Complejidad](img/complejidad_empirica.png)
+---
 ## 6. Conclusiones
 1. La Teoría de Grafos Dirigidos proporciona una herramienta matemáticamente rigurosa para abstraer la infraestructura de red UAS y resolver el problema de anonimización de operadores.
 2. La utilización del Grafo Transpuesto $G^T$ combinado con el filtrado del grado de entrada $d^-(v) = 0$ permite rastrear eficientemente el origen de la señal en tiempo lineal $\mathcal{O}(|V| + |E|)$.

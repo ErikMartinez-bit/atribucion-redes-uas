@@ -1,6 +1,6 @@
 # Algoritmos de Atribución en Redes de Comunicación: Identificación del Nodo Origen en Sistemas de Aeronaves No Tripuladas (UAS)
 
-**Autor:** [TU NOMBRE COMPLETO AQUÍ]  
+**Autor:** Erik Santiago Martinez Perez 
 **Asignatura:** Matemáticas Discretas I – Ingeniería de Sistemas  
 
 ---
@@ -78,3 +78,45 @@ Salida: (emisor_optimo, distancia, candidatos)
 
 8. retornar (emisor_optimo, dist[emisor_optimo], candidatos)
 ```
+El algoritmo opera enteramente sobre estructuras de adyacencia (sin recorrer la matriz $A$ de forma explícita), lo que garantiza que cada paso se ejecute en tiempo lineal respecto al tamaño de la red, tal como se demostró en la Sección 2.5.
+
+---
+
+## 4. Implementación y Arquitectura del Sistema
+El prototipo computacional se desarrolló en Python estructurado en tres módulos principales:
+1. `src/graph_builder.py`: Constructor programático de topologías de red (Estrella, Cadena, Mesh y Desconectada).
+2. `src/attribution_engine.py`: Motor algorítmico que ejecuta la inversión de aristas en $G^T$, el filtrado de $d^-(v) = 0$ y la resolución de ambigüedades.
+3. `src/visualizer.py`: Motor gráfico basado en `networkx` y `matplotlib` para la diferenciación cromática de roles en la red.
+
+El código cuenta con una suite de pruebas automatizadas (`tests/test_attribution.py`) ejecutadas bajo el framework `pytest`.
+
+---
+
+## 5. Resultados y Análisis Experimental
+
+### Escenario A: Control Directo Punto a Punto
+* **Configuración:** Conexión directa $C_1 \to D_1$.
+* **Resultado:** Identificación directa de `Operador_C1` a distancia $d=1$.
+![Escenario A](img/escenario_a_directo.png)
+
+### Escenario B: Cadena de Repetidores Terrestres
+* **Configuración:** Cadena $C_1 \to R_1 \to R_2 \to D_1$.
+* **Resultado:** El algoritmo descartó los repetidores $R_1$ y $R_2$ por satisfacer $d^-(r) \ge 1$, atribuyendo correctamente la operación a `Operador_C1` a distancia $d=3$.
+![Escenario B](img/escenario_b_cadena.png)
+
+### Escenario C: Red Mesh Compleja y Desempate por Distancia
+* **Configuración:** Dos emisores candidatos (`Operador_Real_C1` a distancia 3 y `Operador_Falso_C2` a distancia 4) convergiendo en la red.
+* **Resultado:** El motor detectó ambos candidatos en $C_{candidatos}$ y aplicó el desempate por camino mínimo, seleccionando exitosamente a `Operador_Real_C1`.
+![Escenario C](img/escenario_c_mesh.png)
+
+### Caso Borde: Red Desconectada
+* **Configuración:** Dron aislado $D_1$ sin enlaces dirigidos desde ningún operador.
+* **Resultado:** Salida `None`, distancia `inf` y $C_{candidatos} = \emptyset$, validando el manejo de datos incompletos sin colapsar el software.
+
+---
+
+## 6. Conclusiones
+1. La Teoría de Grafos Dirigidos proporciona una herramienta matemáticamente rigurosa para abstraer la infraestructura de red UAS y resolver el problema de anonimización de operadores.
+2. La utilización del Grafo Transpuesto $G^T$ combinado con el filtrado del grado de entrada $d^-(v) = 0$ permite rastrear eficientemente el origen de la señal en tiempo lineal $\mathcal{O}(|V| + |E|)$.
+3. El enfoque de desempate por camino mínimo en dígrafos acíclicos permite resolver escenarios con emisiones falsas o repetidores compartidos de manera determinista.
+4. **Trabajo futuro:** el modelo actual asume enlaces homogéneos sin pérdida de señal; una extensión natural consiste en asignar un peso de confiabilidad decreciente por cada salto a través de un repetidor, transformando el desempate de mínimo número de saltos a mínimo costo acumulado, lo cual acercaría el modelo a condiciones reales de degradación de señal RF.
